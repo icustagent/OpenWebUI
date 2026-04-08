@@ -1,32 +1,64 @@
 services:
-  ollama:
-    volumes:
-      - ollama:/root/.ollama
-    container_name: ollama
-    pull_policy: always
-    tty: true
-    restart: unless-stopped
-    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
-
   open-webui:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+    image: ghcr.io/ovinc-cn/openwebui:latest
     container_name: open-webui
-    volumes:
-      - open-webui:/app/backend/data
-    depends_on:
-      - ollama
-    ports:
-      - ${OPEN_WEBUI_PORT-3000}:8080
-    environment:
-      - 'OLLAMA_BASE_URL=http://ollama:11434'
-      - 'WEBUI_SECRET_KEY='
-    extra_hosts:
-      - host.docker.internal:host-gateway
     restart: unless-stopped
+    ports:
+      - "3010:8080"
+    env_file:
+      - .env
+    volumes:
+      - open-webui-data:/app/backend/data
+    depends_on:
+      - open-webui-postgres
+      - open-webui-qdrant
+      - open-webui-redis
+    networks:
+      - open-webui
+      - apinetwork
+
+  open-webui-postgres:
+    image: postgres:16-alpine
+    container_name: open-webui-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-openwebui_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-supersecretpassword}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - open-webui
+
+  open-webui-qdrant:
+    image: qdrant/qdrant:latest
+    container_name: open-webui-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - open-webui
+      
+  open-webui-redis:
+    image: redis:7-alpine
+    container_name: open-webui-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - open-webui
+
+networks:
+  open-webui:
+    name: open-webui
+  apinetwork:
+    name: apinetwork
 
 volumes:
-  ollama: {}
-  open-webui: {}
+  open-webui-data:
+  postgres-data:
+  qdrant-data:
+  redis-data:
