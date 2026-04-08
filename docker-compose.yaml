@@ -1,6 +1,6 @@
 services:
   open-webui:
-    image: ghcr.io/ovinc-cn/openwebui:latest
+    image: ghcr.io/ovinc-cn/openwebui:main
     container_name: open-webui
     restart: unless-stopped
     ports:
