@@ -29,7 +29,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-supersecretpassword}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - open-webui-postgres-data:/var/lib/postgresql/data
     networks:
       - open-webui
 
@@ -41,7 +41,7 @@ services:
       - "6333:6333"
       - "6334:6334"
     volumes:
-      - qdrant-data:/qdrant/storage
+      - open-webui-qdrant-data:/qdrant/storage
     networks:
       - open-webui
       
@@ -50,7 +50,7 @@ services:
     container_name: open-webui-redis
     restart: unless-stopped
     volumes:
-      - redis-data:/data
+      - open-webui-redis-data:/data
     networks:
       - open-webui
 
@@ -62,6 +62,6 @@ networks:
 
 volumes:
   open-webui-data:
-  postgres-data:
-  qdrant-data:
-  redis-data:
+  open-webui-postgres-data:
+  open-webui-qdrant-data:
+  open-webui-redis-data:
