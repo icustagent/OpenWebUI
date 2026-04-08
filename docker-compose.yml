@@ -1,6 +1,9 @@
 services:
   open-webui:
-    image: ghcr.io/ovinc-cn/openwebui:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
     container_name: open-webui
     restart: unless-stopped
     ports:
