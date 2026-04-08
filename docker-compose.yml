@@ -6,62 +6,21 @@ services:
     image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
     container_name: open-webui
     restart: unless-stopped
-    ports:
-      - "3010:8080"
-    env_file:
-      - .env
     volumes:
       - open-webui-data:/app/backend/data
-    depends_on:
-      - open-webui-postgres
-      - open-webui-qdrant
-      - open-webui-redis
+    ports:
+      - ${OPEN_WEBUI_PORT-3010}:8080
+    env_file:
+      - .env
     networks:
       - open-webui
       - apinetwork
 
-  open-webui-postgres:
-    image: postgres:16-alpine
-    container_name: open-webui-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-openwebui_db}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-supersecretpassword}
-    volumes:
-      - open-webui-postgres-data:/var/lib/postgresql/data
-    networks:
-      - open-webui
-
-  open-webui-qdrant:
-    image: qdrant/qdrant:latest
-    container_name: open-webui-qdrant
-    restart: unless-stopped
-    ports:
-      - "6333:6333"
-      - "6334:6334"
-    volumes:
-      - open-webui-qdrant-data:/qdrant/storage
-    networks:
-      - open-webui
-      
-  open-webui-redis:
-    image: redis:7-alpine
-    container_name: open-webui-redis
-    restart: unless-stopped
-    volumes:
-      - open-webui-redis-data:/data
-    networks:
-      - open-webui
+volumes:
+  open-webui-data:
 
 networks:
   open-webui:
     name: open-webui
   apinetwork:
     name: apinetwork
-
-volumes:
-  open-webui-data:
-  open-webui-postgres-data:
-  open-webui-qdrant-data:
-  open-webui-redis-data:
